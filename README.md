@@ -12,7 +12,7 @@ Targets are `local` and `vps`. The process listens on `127.0.0.1`.
 
 ## Install the command
 
-Any of these runs the same v0.1.0 binary. The npm package is 0.1.1 because 0.1.0 was published empty and the registry will not replace it.
+Any of these runs the v0.1.0 binary packed inside the npm package. The package version is 0.1.1 because 0.1.0 was published empty. The git repository is private, so the package carries the binary instead of downloading the GitHub release.
 
 ```text
 npx fastygo init . --module github.com/you/shop

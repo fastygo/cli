@@ -1,5 +1,7 @@
 tmp/
 dist/
+binaries/
+*.tgz
 .DS_Store
 .manual/
 .project/

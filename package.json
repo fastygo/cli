@@ -9,6 +9,7 @@
   },
   "files": [
     "bin/fastygo.js",
+    "binaries",
     "README.md",
     "LICENSE"
   ],

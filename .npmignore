@@ -1,0 +1,11 @@
+dist/
+tmp/
+.manual/
+.project/
+internal/
+cmd/
+.github/
+AGENTS.md
+install.sh
+.gitignore
+.npmignore
