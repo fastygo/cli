@@ -2,7 +2,7 @@ package fasty
 
 // Version is the fastygo release. The same number is the git tag, the
 // npm package, and the set of module versions this release installs.
-const Version = "0.1.0"
+const Version = "0.1.1"
 
 const (
 	goLine      = "1.25.0"

@@ -12,7 +12,7 @@ Targets are `local` and `vps`. The process listens on `127.0.0.1`.
 
 ## Install the command
 
-Any of these runs the v0.1.0 binary packed inside the npm package. The package version is 0.1.1 because 0.1.0 was published empty. The git repository is private, so the package carries the binary instead of downloading the GitHub release.
+Any of these runs the binary packed inside the npm package. The npm version can be newer than the Go tag because npm versions cannot be replaced after publication. The git repository is private, so the package carries the binary instead of downloading the GitHub release.
 
 ```text
 npx fastygo init . --module github.com/you/shop
@@ -24,7 +24,7 @@ bunx fastygo init . --module github.com/you/shop
 From the Go module:
 
 ```text
-go install github.com/fastygo/cli/cmd/fastygo@v0.1.0
+go install github.com/fastygo/cli/cmd/fastygo@v0.1.1
 ```
 
 Linux amd64 and macOS arm64 can also use `install.sh`. It checks `SHA256SUMS` and prints the binary path.
