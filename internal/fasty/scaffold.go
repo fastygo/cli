@@ -143,7 +143,11 @@ func main() {
 		log.Fatal(err)
 	}
 	builder := app.New(cfg)
-	builder.Mux().HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	// LoadConfig sets StaticDir, so Build would register /static/.
+	// Go rejects that pattern next to a GET / subtree, and this site
+	// has no static files. The home route matches only /.
+	builder.DisableStatic()
+	builder.Mux().HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		if err := render.Render(r.Context(), w, home()); err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
