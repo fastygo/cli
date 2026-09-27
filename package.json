@@ -1,6 +1,6 @@
 {
   "name": "fastygo",
-  "version": "0.1.1-beta.1",
+  "version": "0.1.2",
   "type": "module",
   "author": "FastyGo",
   "description": "Install a FastyGo site once. Versions stay in the project's go.mod.",
