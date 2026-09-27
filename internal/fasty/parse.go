@@ -11,6 +11,7 @@ type Plan struct {
 	Dir     string
 	Module  string
 	Target  string
+	Content string
 	Storage string
 	With    map[string]bool
 	DryRun  bool
@@ -22,6 +23,7 @@ func parseArgs(args []string) (Plan, error) {
 	plan := Plan{
 		Dir:     ".",
 		Target:  "local",
+		Content: "fixtures",
 		Storage: "bbolt",
 		With:    map[string]bool{"render": true},
 	}
@@ -52,7 +54,7 @@ func parseArgs(args []string) (Plan, error) {
 		case arg == "--help", arg == "-h":
 			plan.Command = "help"
 			return plan, nil
-		case arg == "--module", arg == "--target", arg == "--storage", arg == "--with", arg == "--dir":
+		case arg == "--module", arg == "--target", arg == "--content", arg == "--storage", arg == "--with", arg == "--dir":
 			if i+1 >= len(args) {
 				return Plan{}, fmt.Errorf("%s needs a value", arg)
 			}
@@ -60,7 +62,7 @@ func parseArgs(args []string) (Plan, error) {
 			if err := applyFlag(&plan, arg, args[i]); err != nil {
 				return Plan{}, err
 			}
-		case strings.HasPrefix(arg, "--module="), strings.HasPrefix(arg, "--target="), strings.HasPrefix(arg, "--storage="), strings.HasPrefix(arg, "--with="), strings.HasPrefix(arg, "--dir="):
+		case strings.HasPrefix(arg, "--module="), strings.HasPrefix(arg, "--target="), strings.HasPrefix(arg, "--content="), strings.HasPrefix(arg, "--storage="), strings.HasPrefix(arg, "--with="), strings.HasPrefix(arg, "--dir="):
 			key, value, _ := strings.Cut(arg, "=")
 			if err := applyFlag(&plan, key, value); err != nil {
 				return Plan{}, err
@@ -99,14 +101,20 @@ func parseArgs(args []string) (Plan, error) {
 		}
 	}
 
-	if plan.Target != "local" && plan.Target != "vps" {
-		return Plan{}, fmt.Errorf("unknown target %q (fastygo %s accepts local or vps)", plan.Target, Version)
+	if plan.Target != "local" && plan.Target != "vps" && plan.Target != "vercel" {
+		return Plan{}, fmt.Errorf("unknown target %q (fastygo %s accepts local, vps, or vercel)", plan.Target, Version)
+	}
+	if plan.Content != "fixtures" && plan.Content != "codex" {
+		return Plan{}, fmt.Errorf("unknown content %q (fastygo %s accepts fixtures or codex)", plan.Content, Version)
 	}
 	if plan.Storage != "bbolt" {
 		return Plan{}, fmt.Errorf("unknown storage %q (fastygo %s accepts bbolt)", plan.Storage, Version)
 	}
+	if plan.Command == "init" && plan.Target == "vercel" && plan.With["codex"] {
+		return Plan{}, fmt.Errorf("vercel does not install a local Codex server; use --content codex and set CODEX_ORIGIN")
+	}
 	if plan.Storage != "" && plan.Command == "init" && !plan.With["codex"] && storageSet(args) {
-		return Plan{}, fmt.Errorf("storage applies to codex; pass --with codex")
+		return Plan{}, fmt.Errorf("storage applies to the local Codex server; pass --with codex")
 	}
 	return plan, nil
 }
@@ -117,6 +125,8 @@ func applyFlag(plan *Plan, key, value string) error {
 		plan.Module = value
 	case "--target":
 		plan.Target = value
+	case "--content":
+		plan.Content = value
 	case "--storage":
 		plan.Storage = value
 	case "--dir":

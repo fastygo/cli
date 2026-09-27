@@ -42,13 +42,50 @@ func TestDryRunWritesNothing(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := out.String()
-	for _, phrase := range []string{"dry-run", "github.com/fastygo/framework@v0.4.0", "bbolt", "vps"} {
+	for _, phrase := range []string{"dry-run", "github.com/fastygo/framework@v0.4.0", "bbolt", "vps", "content-json", "fixtures"} {
 		if !strings.Contains(text, phrase) {
 			t.Fatalf("output missing %q:\n%s", phrase, text)
 		}
 	}
 	if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
 		t.Fatal("dry-run wrote go.mod")
+	}
+}
+
+func TestVercelDryRunSkipsLocalCodex(t *testing.T) {
+	dir := t.TempDir()
+	var out bytes.Buffer
+	err := Execute(context.Background(), []string{
+		"init", dir,
+		"--module", "github.com/acme/shop",
+		"--target", "vercel",
+		"--content", "codex",
+		"--dry-run",
+	}, IO{
+		Out: &out,
+		Err: &out,
+		LookPath: func(name string) (string, error) {
+			if name == goBinaryName() {
+				return name, nil
+			}
+			return "", os.ErrNotExist
+		},
+		Run: func(ctx context.Context, name string, args []string, dir string, env []string) error {
+			t.Fatalf("dry-run executed %s %v", name, args)
+			return nil
+		},
+		GOOS:   "linux",
+		GOARCH: "amd64",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := out.String()
+	if !strings.Contains(text, "api/index.go vercel.json") || strings.Contains(text, "go install") {
+		t.Fatalf("output:\n%s", text)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "vercel.json")); err == nil {
+		t.Fatal("dry-run wrote vercel.json")
 	}
 }
 

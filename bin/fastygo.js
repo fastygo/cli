@@ -8,7 +8,7 @@ import { arch, platform } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const version = "0.1.1";
+const version = "0.2.0";
 
 const packed = {
   "win32-x64": "fastygo-windows-amd64.exe",

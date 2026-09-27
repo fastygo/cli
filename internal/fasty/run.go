@@ -126,6 +126,9 @@ func initProject(ctx context.Context, plan Plan, io IO) error {
 		return fmt.Errorf("go mod init: %w", err)
 	}
 	gets := []string{"get", framework, renderMod}
+	if plan.Content == "fixtures" {
+		gets = append(gets, contentJSON)
+	}
 	if plan.With["markdown"] {
 		gets = append(gets, markdownMod)
 	}
@@ -141,7 +144,7 @@ func initProject(ctx context.Context, plan Plan, io IO) error {
 	if err := pinGoLine(plan.Dir); err != nil {
 		return err
 	}
-	if err := io.Run(ctx, goBin, []string{"tool", "templ", "generate", "./cmd/site"}, plan.Dir, env); err != nil {
+	if err := io.Run(ctx, goBin, []string{"tool", "templ", "generate", "./internal/site"}, plan.Dir, env); err != nil {
 		return fmt.Errorf("templ generate: %w", err)
 	}
 	if err := io.Run(ctx, goBin, []string{"mod", "tidy"}, plan.Dir, env); err != nil {
@@ -150,7 +153,7 @@ func initProject(ctx context.Context, plan Plan, io IO) error {
 	if err := pinGoLine(plan.Dir); err != nil {
 		return err
 	}
-	if plan.With["codex"] {
+	if plan.With["codex"] && plan.Target != "vercel" {
 		if err := installCodex(ctx, plan.Dir, goBin, io); err != nil {
 			return err
 		}
@@ -190,6 +193,9 @@ func addFeature(ctx context.Context, plan Plan, io IO) error {
 			return err
 		}
 	case "codex":
+		if _, err := os.Stat(filepath.Join(plan.Dir, "vercel.json")); err == nil {
+			return fmt.Errorf("this site targets Vercel; set CODEX_ORIGIN instead of installing a local Codex server")
+		}
 		if err := installCodex(ctx, plan.Dir, goBin, io); err != nil {
 			return err
 		}
@@ -256,6 +262,10 @@ func printInit(out io.Writer, plan Plan, goNote string) error {
 	fmt.Fprintf(out, "go: %s\n", goNote)
 	fmt.Fprintf(out, "would go get %s\n", framework)
 	fmt.Fprintf(out, "would go get %s\n", renderMod)
+	fmt.Fprintf(out, "content: %s\n", plan.Content)
+	if plan.Content == "fixtures" {
+		fmt.Fprintf(out, "would go get %s\n", contentJSON)
+	}
 	if plan.With["markdown"] {
 		fmt.Fprintf(out, "would go get %s\n", markdownMod)
 	}
@@ -263,7 +273,10 @@ func printInit(out io.Writer, plan Plan, goNote string) error {
 		fmt.Fprintf(out, "would go get %s\n", viewMod)
 	}
 	fmt.Fprintf(out, "would go get -tool %s\n", templTool)
-	fmt.Fprintln(out, "would write AGENTS.md package.json .env.example cmd/site/main.go cmd/site/home.templ")
+	fmt.Fprintln(out, "would write AGENTS.md package.json .env.example cmd/site/main.go internal/site/app.go internal/site/home.templ")
+	if plan.Target == "vercel" {
+		fmt.Fprintln(out, "would write api/index.go vercel.json")
+	}
 	if plan.With["codex"] {
 		fmt.Fprintf(out, "would go install %s into .bin (storage %s)\n", codexPkg, plan.Storage)
 	}

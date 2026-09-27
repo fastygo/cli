@@ -7,8 +7,9 @@ This release installs:
 - `github.com/fastygo/framework` v0.4.0
 - `github.com/fastygo/modules/render` v0.1.0 and templ v0.3.1001 as `go tool templ`
 - optional markdown, view, and a local Codex bbolt binary from `github.com/fastygo/backend/cmd/server` v0.1.0
+- embedded Codex fixtures through `github.com/fastygo/modules/content-json` v0.1.0, or an external Codex origin
 
-Targets are `local` and `vps`. The process listens on `127.0.0.1`.
+Targets are `local`, `vps`, and `vercel`. Local and VPS processes listen on `127.0.0.1`. Vercel gets a Go Function at `api/index.go`.
 
 ## Install the command
 
@@ -24,7 +25,7 @@ bunx fastygo init . --module github.com/you/shop
 From the Go module:
 
 ```text
-go install github.com/fastygo/cli/cmd/fastygo@v0.1.1
+go install github.com/fastygo/cli/cmd/fastygo@v0.2.0
 ```
 
 Linux amd64 and macOS arm64 can also use `install.sh`. It checks `SHA256SUMS` and prints the binary path.
@@ -35,7 +36,11 @@ If Go 1.25 is missing, `init` offers to download it into the user cache before i
 
 ```text
 fastygo init . --module github.com/you/shop --target vps --with codex
+fastygo init . --module github.com/you/site --target vercel --content fixtures
+fastygo init . --module github.com/you/site --target vercel --content codex
 go run ./cmd/site
 ```
+
+`--content fixtures` is the default. It embeds a Codex manifest and the Home entry. `--content codex` reads an external GoBackend through `CODEX_ORIGIN`; the token stays out of the repository. `--target vercel` does not install a local Codex server. Use `--with codex` only for `local` or `vps`.
 
 `fastygo init --help` lists the flags. A second `init` stops when `go.mod` is already there. `fastygo add markdown` updates that module.

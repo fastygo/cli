@@ -27,6 +27,19 @@ func TestParseRejectsUnknownTargetAndStorage(t *testing.T) {
 	if _, err := parseArgs([]string{"init", "--module", "github.com/acme/shop", "--target", "serverless"}); err == nil {
 		t.Fatal("expected unknown target")
 	}
+	vercel, err := parseArgs([]string{"init", "--module", "github.com/acme/shop", "--target", "vercel", "--content", "codex"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if vercel.Target != "vercel" || vercel.Content != "codex" {
+		t.Fatalf("plan = %+v", vercel)
+	}
+	if _, err := parseArgs([]string{"init", "--module", "github.com/acme/shop", "--target", "vercel", "--with", "codex"}); err == nil {
+		t.Fatal("expected vercel local codex to fail")
+	}
+	if _, err := parseArgs([]string{"init", "--module", "github.com/acme/shop", "--content", "files"}); err == nil {
+		t.Fatal("expected unknown content")
+	}
 	if _, err := parseArgs([]string{"init", "--module", "github.com/acme/shop", "--with", "codex", "--storage", "postgres"}); err == nil {
 		t.Fatal("expected unknown storage")
 	}
@@ -56,6 +69,9 @@ func TestHelpMentionsLaunchersAndPins(t *testing.T) {
 		"bunx fastygo",
 		"v0.4.0",
 		"bbolt",
+		"vercel",
+		"fixtures",
+		"content-json",
 		"no project YAML",
 		"no packageManager",
 	} {

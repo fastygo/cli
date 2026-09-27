@@ -1,10 +1,10 @@
 #!/bin/sh
-# Downloads the fastygo 0.1.0 binary for Linux amd64 or macOS arm64.
+# Downloads the fastygo 0.2.0 binary for Linux amd64 or macOS arm64.
 # The GitHub repository is private, so this script works only with access to that release.
 # Windows and everyone else: npx fastygo, which carries the binary in the npm package.
 
 set -eu
-version=0.1.0
+version=0.2.0
 repo=fastygo/cli
 
 os=$(uname -s)
