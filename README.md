@@ -41,6 +41,8 @@ fastygo init . --module github.com/you/site --target vercel --content codex
 go run ./cmd/site
 ```
 
-`--content fixtures` is the default. It embeds a Codex manifest and the Home entry. `--content codex` reads an external GoBackend through `CODEX_ORIGIN`; the token stays out of the repository. `--target vercel` does not install a local Codex server. Use `--with codex` only for `local` or `vps`.
+`--content fixtures` is the default. It embeds `content/manifest.json` and `content/entries/home.json` and loads them with `content-json`. `--content codex` reads an external GoBackend through `CODEX_ORIGIN`; the token stays out of the repository. `--target vercel` writes `api/index.go` and `vercel.json` and does not install a local Codex server. Use `--with codex` only for `local` or `vps`.
+
+The page template is `internal/site/home.templ`. Routes, including `DisableStatic`, `GET /healthz`, and `GET /{$}`, live in `internal/site/app.go`. `cmd/site/main.go` only calls `Run(ctx)`. After a template edit, run `go tool templ generate ./internal/site`.
 
 `fastygo init --help` lists the flags. A second `init` stops when `go.mod` is already there. `fastygo add markdown` updates that module.
